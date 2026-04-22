@@ -652,7 +652,7 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
                     className="output-frame"
                     srcDoc={cleanHTML(output)}
                     title="Generated Funding Package"
-                    sandbox="allow-scripts"
+                    sandbox="allow-scripts allow-same-origin"
                   />
                 )}
               </div>
