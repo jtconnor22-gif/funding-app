@@ -161,7 +161,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     const stream = await client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 8000,
       system: SYSTEM_PROMPT,
       messages: apiMessages,
