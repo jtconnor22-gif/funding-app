@@ -1,3 +1,22 @@
+import { kv } from '@vercel/kv';
+import crypto from 'crypto';
+
+async function getAffiliate(req) {
+  const match = (req.headers.cookie || '').match(/affiliate_auth=([^;]+)/);
+  const cookie = match ? decodeURIComponent(match[1]) : null;
+  if (!cookie) return null;
+  try {
+    const [email, hash] = Buffer.from(cookie, 'base64').toString().split(':');
+    if (!email || !hash) return null;
+    const aff = await kv.get(`affiliate:${email}`);
+    if (!aff || !aff.active || !aff.accessCode) return null;
+    const expected = crypto.createHash('sha256').update(aff.accessCode + 'fundingos_affiliate_salt').digest('hex');
+    if (hash !== expected) return null;
+    return aff;
+  } catch (err) {
+    return null;
+  }
+}
 import Anthropic from '@anthropic-ai/sdk';
 
 export const config = {
@@ -226,6 +245,9 @@ For follow-up questions, respond in clean markdown (not HTML). Be concise. If th
 If the user asks for a fundamentally different version of the whole package, tell them to click "Start New Client" and regenerate with updated inputs.`;
 
 export default async function handler(req, res) {
+const affiliate = await getAffiliate(req);
+  if (!affiliate) return res.status(401).json({ error: 'Not authenticated. Please log in.' });
+  if ((affiliate.credits || 0) <= 0) return res.status(403).json({ error: 'Out of credits. Contact admin to add more.' });
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
