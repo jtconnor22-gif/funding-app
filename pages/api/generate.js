@@ -9,7 +9,7 @@ export const config = {
 };
 
 const DESIGN_SYSTEM = `
-You MUST output a complete, self-contained HTML document. Do not output markdown. Do not output plain text. Do not wrap your response in code fences. Start with <!DOCTYPE html> and end with </html>. Nothing before, nothing after.
+You MUST output a complete, self-contained HTML document. Do not output markdown. Do not output plain text. Do not wrap your response in code fences. Do not start with three backticks. Do not end with three backticks. Do not add ```html before the DOCTYPE. Your response must start with the literal characters: < ! D O C T Y P E (in that order, no spaces, no preamble). Start with <!DOCTYPE html> and end with </html>. Nothing before, nothing after.
 
 Use this exact design system. Copy the entire CSS block verbatim into the <style> tag. Do not modify the colors, fonts, or class names.
 
