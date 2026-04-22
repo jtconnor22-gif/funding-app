@@ -248,9 +248,23 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [affiliate, setAffiliate] = useState(null);
   const streamRef = useRef(null);
   const chatEndRef = useRef(null);
 
+  const fetchMe = async () => {
+    try {
+      const r = await fetch('/api/me');
+      if (r.ok) setAffiliate(await r.json());
+    } catch (e) {}
+  };
+
+  useEffect(() => { fetchMe(); }, []);
+
+  const handleLogout = async () => {
+    document.cookie = 'affiliate_auth=; Path=/; Max-Age=0';
+    window.location.href = '/login';
+  };
   useEffect(() => {
     if (streamRef.current && generating) streamRef.current.scrollTop = streamRef.current.scrollHeight;
   }, [output, generating]);
@@ -437,6 +451,7 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
         }),
       });
       setSaved(true);
+      fetchMe();
     } catch (e) { console.error('Save error', e); }
     setSaving(false);
   };
@@ -535,6 +550,19 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
                   <button className="btn btn-danger" onClick={requestClear}>← New Client</button>
                 </>
               )}
+              {affiliate && (
+                <div style={{ display:'flex', alignItems:'center', gap:14, marginRight:8, paddingRight:14, borderRight:'1px solid rgba(136,153,187,.15)' }}>
+                  <div style={{ textAlign:'right' }}>
+                    <div style={{ fontSize:9, letterSpacing:'.15em', color:D, textTransform:'uppercase' }}>Credits</div>
+                    <div style={{ fontFamily:'serif', fontSize:18, fontWeight:700, color: affiliate.credits>0 ? G : '#ff6b6b', lineHeight:1 }}>{affiliate.credits}</div>
+                  </div>
+                  <div style={{ textAlign:'right' }}>
+                    <div style={{ fontSize:9, letterSpacing:'.15em', color:D, textTransform:'uppercase' }}>Signed In</div>
+                    <div style={{ fontSize:11, color:C, lineHeight:1.2, marginTop:2 }}>{affiliate.name}</div>
+                  </div>
+                  <button onClick={handleLogout} style={{ fontFamily:"'DM Mono',monospace", fontSize:9, letterSpacing:'.12em', textTransform:'uppercase', color:D, background:'transparent', border:'1px solid rgba(136,153,187,.2)', borderRadius:7, padding:'7px 12px', cursor:'pointer' }}>Sign Out</button>
+                </div>
+              )}
               <a href="/admin" style={{ fontFamily: "'DM Mono',monospace", fontSize: 10, letterSpacing: '.12em', textTransform: 'uppercase', color: D, textDecoration: 'none', padding: '9px 14px', border: '1px solid rgba(136,153,187,.2)', borderRadius: 8 }}>Admin ↗</a>
             </div>
           </div>
@@ -625,9 +653,18 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
               </div>
 
               <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center' }}>
-                <button className="btn btn-primary" onClick={generate} disabled={generating} style={{ fontSize: 13, padding: '15px 48px' }}>
-                  {generating ? <span className="pulse">Generating...</span> : '⚡ Generate Full Package'}
-                </button>
+                {affiliate && affiliate.credits <= 0 ? (
+                  <div style={{ background: 'rgba(155,34,38,.1)', border: '1px solid rgba(155,34,38,.3)', borderRadius: 10, padding: '20px 28px', textAlign: 'center', maxWidth: 560 }}>
+                    <div style={{ fontFamily: 'serif', fontSize: 18, fontWeight: 700, color: '#ff6b6b', marginBottom: 6 }}>Out of credits</div>
+                    <div style={{ fontSize: 12, color: D, lineHeight: 1.6 }}>
+                      You've used all of your generation credits. Contact the account owner to add more — your past packages are still accessible above.
+                    </div>
+                  </div>
+                ) : (
+                  <button className="btn btn-primary" onClick={generate} disabled={generating || !affiliate} style={{ fontSize: 13, padding: '15px 48px' }}>
+                    {generating ? <span className="pulse">Generating...</span> : '⚡ Generate Full Package'}
+                  </button>
+                )}
               </div>
             </>
           )}
