@@ -1,6 +1,17 @@
+import crypto from 'crypto';
+
+function isAdmin(req) {
+  const match = (req.headers.cookie || '').match(/admin_auth=([^;]+)/);
+  const token = match ? decodeURIComponent(match[1]) : null;
+  const secret = process.env.ADMIN_PASSWORD || '';
+  if (!secret || !token) return false;
+  const expected = crypto.createHash('sha256').update(secret + 'fundingos_salt').digest('hex');
+  return token === expected;
+}
 import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
+if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
   // GET — fetch all packages
   if (req.method === 'GET') {
     try {
