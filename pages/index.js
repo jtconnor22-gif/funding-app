@@ -338,13 +338,22 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
     await streamResponse(updated, false, true);
     setChatting(false);
   };
-
+const cleanHTML = (raw) => {
+    if (!raw) return '';
+    let cleaned = raw.trim();
+    cleaned = cleaned.replace(/^```html\s*/i, '');
+    cleaned = cleaned.replace(/^```\s*/i, '');
+    cleaned = cleaned.replace(/\s*```\s*$/, '');
+    const docStart = cleaned.indexOf('<!DOCTYPE');
+    if (docStart > 0) cleaned = cleaned.slice(docStart);
+    return cleaned;
+  };
   const handleCopy = () => {
     navigator.clipboard.writeText(output).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
   };
 
   const handleDownload = () => {
-    const blob = new Blob([output], { type: 'text/html' });
+    const blob = new Blob([cleanHTML(output)], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -357,7 +366,7 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
   };
 
   const handleOpenInNewTab = () => {
-    const blob = new Blob([output], { type: 'text/html' });
+    const blob = new Blob([cleanHTML(output)], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
@@ -546,9 +555,9 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
                 {!generating && output && (
                   <iframe
                     className="output-frame"
-                    srcDoc={output}
+                    srcDoc={cleanHTML(output)}
                     title="Generated Funding Package"
-                    sandbox="allow-scripts allow-same-origin"
+                    sandbox="allow-scripts"
                   />
                 )}
               </div>
