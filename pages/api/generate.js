@@ -134,6 +134,28 @@ export default async function handler(req, res) {
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+    // Inject today's real date into the system prompt so Claude doesn't mistakenly flag valid past dates as "future"
+    const today = new Date();
+    const todayFormatted = today.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const todayISO = today.toISOString().split('T')[0];
+
+    const DATE_CONTEXT = `
+
+CURRENT DATE CONTEXT:
+Today's actual date is ${todayFormatted} (${todayISO}).
+Use this as the ONLY reference point for evaluating whether any date the client provided is in the past, present, or future.
+A date is "in the future" ONLY if it falls AFTER ${todayISO}.
+A date is "in the past" if it falls BEFORE ${todayISO}.
+Do not rely on your training data knowledge cutoff to determine what "today" is — use the date stated above.
+When calculating business age, account age, or inquiry age, always measure from ${todayISO} backward.`;
+
+    const systemWithDate = SYSTEM_PROMPT + DATE_CONTEXT;
+
     // Build messages — attach PDF to first user message only
     const apiMessages = messages.map((m, i) => {
       if (i === 0 && pdfBase64) {
@@ -163,7 +185,7 @@ export default async function handler(req, res) {
     const stream = await client.messages.stream({
       model: 'claude-sonnet-4-5',
       max_tokens: 8000,
-      system: SYSTEM_PROMPT,
+      system: systemWithDate,
       messages: apiMessages,
     });
 
@@ -178,10 +200,4 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
-      res.end();
-    }
-  }
-}
+      res.status(500).json({ error: err.messag
