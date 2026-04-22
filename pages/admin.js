@@ -272,7 +272,7 @@ export default function Admin() {
                     <div style={{ padding:40, textAlign:'center', color:D, fontSize:12 }}>No affiliates yet. Add your first one using the form.</div>
                   ) : (
                     <table style={{ width:'100%', borderCollapse:'collapse' }}>
-                      <thead><tr><TH>Name / Email</TH><TH>Credits Left</TH><TH>Total Used</TH><TH>Status</TH><TH>Actions</TH></tr></thead>
+                      <thead><tr><TH>Name / Email</TH><TH>Access Code</TH><TH>Credits Left</TH><TH>Total Used</TH><TH>Status</TH><TH>Actions</TH></tr></thead>
                       <tbody>
                         {affiliates.map((a,i) => (
                           <tr key={a.email} className="row">
@@ -280,6 +280,14 @@ export default function Admin() {
                               <div style={{ color:C, fontWeight:500, fontSize:12 }}>{a.name||a.email}</div>
                               {a.name && <div style={{ fontSize:10, color:D, marginTop:2 }}>{a.email}</div>}
                               {a.notes && <div style={{ fontSize:10, color:D, marginTop:2, fontStyle:'italic' }}>{a.notes}</div>}
+                            </TD>
+                            <TD>
+                              {a.accessCode ? (
+                                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                                  <code style={{ fontSize:10, color:G, background:'rgba(201,168,76,.08)', border:'1px solid rgba(201,168,76,.15)', borderRadius:4, padding:'3px 7px', fontFamily:"'DM Mono',monospace" }}>{a.accessCode}</code>
+                                  <button className="btn btn-ghost btn-sm" style={{ padding:'2px 7px', fontSize:8 }} onClick={() => navigator.clipboard.writeText(a.accessCode)}>Copy</button>
+                                </div>
+                              ) : <span style={{ fontSize:10, color:D }}>—</span>}
                             </TD>
                             <TD>
                               <span style={{ fontFamily:'serif', fontSize:22, fontWeight:900, color:a.credits>0?GR:OR }}>{a.credits||0}</span>
