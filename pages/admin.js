@@ -408,3 +408,19 @@ export default function Admin() {
     </>
   );
 }
+import crypto from 'crypto';
+
+export async function getServerSideProps(ctx) {
+  const cookies = ctx.req.headers.cookie || '';
+  const match = cookies.match(/admin_auth=([^;]+)/);
+  const token = match ? decodeURIComponent(match[1]) : null;
+  const secret = process.env.ADMIN_PASSWORD || '';
+  if (!secret || !token) {
+    return { redirect: { destination: '/admin-login', permanent: false } };
+  }
+  const expected = crypto.createHash('sha256').update(secret + 'fundingos_salt').digest('hex');
+  if (token !== expected) {
+    return { redirect: { destination: '/admin-login', permanent: false } };
+  }
+  return { props: {} };
+}
