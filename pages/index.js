@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300&display=swap');
@@ -9,9 +11,43 @@ const css = `
   ::-webkit-scrollbar { width:6px; }
   ::-webkit-scrollbar-track { background:#132040; }
   ::-webkit-scrollbar-thumb { background:#c9a84c; border-radius:3px; }
-  .output-content { white-space:pre-wrap; font-size:13px; line-height:1.8; color:#f5f0e8; }
-  .chat-bubble-user { background:#1c2f55; border:1px solid rgba(201,168,76,.2); border-radius:10px 10px 2px 10px; padding:12px 16px; font-size:12px; color:#f5f0e8; line-height:1.6; margin-left:40px; }
-  .chat-bubble-ai { background:#132040; border:1px solid rgba(201,168,76,.1); border-radius:10px 10px 10px 2px; padding:12px 16px; font-size:12px; color:#f5f0e8; line-height:1.6; white-space:pre-wrap; }
+
+  /* MARKDOWN RENDERING */
+  .md-body { color:#f5f0e8; font-size:13px; line-height:1.75; white-space:normal; }
+  .md-body > *:first-child { margin-top:0; }
+  .md-body h1 { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:#e8c97a; margin:22px 0 12px; padding-bottom:8px; border-bottom:1px solid rgba(201,168,76,.2); letter-spacing:.01em; }
+  .md-body h2 { font-family:'Fraunces',serif; font-size:17px; font-weight:700; color:#c9a84c; margin:22px 0 10px; letter-spacing:.01em; }
+  .md-body h3 { font-family:'Fraunces',serif; font-size:14px; font-weight:600; color:#f5f0e8; margin:16px 0 8px; letter-spacing:.02em; }
+  .md-body h4, .md-body h5, .md-body h6 { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; color:#c9a84c; text-transform:uppercase; letter-spacing:.12em; margin:14px 0 6px; }
+  .md-body p { font-size:13px; line-height:1.75; color:#f5f0e8; margin-bottom:11px; }
+  .md-body strong { color:#e8c97a; font-weight:600; }
+  .md-body em { color:#c39bd3; font-style:italic; }
+  .md-body ul, .md-body ol { margin:8px 0 14px 22px; }
+  .md-body li { font-size:13px; line-height:1.75; color:#f5f0e8; margin-bottom:4px; }
+  .md-body li::marker { color:#c9a84c; }
+  .md-body li > p { margin-bottom:4px; }
+  .md-body a { color:#c9a84c; text-decoration:underline; text-decoration-color:rgba(201,168,76,.4); word-break:break-all; }
+  .md-body a:hover { color:#e8c97a; }
+  .md-body hr { border:none; border-top:1px solid rgba(201,168,76,.2); margin:22px 0; }
+  .md-body code { background:rgba(10,22,40,.7); padding:2px 6px; border-radius:4px; font-family:'DM Mono',monospace; font-size:12px; color:#e8c97a; border:1px solid rgba(201,168,76,.15); }
+  .md-body pre { background:rgba(10,22,40,.7); padding:14px 16px; border-radius:8px; border:1px solid rgba(201,168,76,.15); overflow-x:auto; margin:12px 0; }
+  .md-body pre code { background:transparent; border:none; padding:0; font-size:12px; color:#f5f0e8; }
+  .md-body blockquote { border-left:3px solid #c9a84c; padding:8px 16px; margin:12px 0; background:rgba(201,168,76,.06); border-radius:0 6px 6px 0; font-size:12px; color:#8899bb; font-style:italic; }
+  .md-body table { border-collapse:collapse; width:100%; margin:14px 0; font-size:12px; }
+  .md-body th { background:rgba(201,168,76,.1); color:#e8c97a; text-align:left; padding:10px 12px; border:1px solid rgba(201,168,76,.2); font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:.1em; }
+  .md-body td { padding:9px 12px; border:1px solid rgba(201,168,76,.15); color:#f5f0e8; }
+  .md-body tr:nth-child(even) td { background:rgba(10,22,40,.4); }
+  .md-body img { max-width:100%; border-radius:6px; margin:10px 0; }
+
+  .chat-bubble-user { background:#1c2f55; border:1px solid rgba(201,168,76,.2); border-radius:10px 10px 2px 10px; padding:12px 16px; font-size:12px; color:#f5f0e8; line-height:1.6; margin-left:40px; white-space:pre-wrap; }
+  .chat-bubble-ai { background:#132040; border:1px solid rgba(201,168,76,.1); border-radius:10px 10px 10px 2px; padding:12px 16px; font-size:12px; color:#f5f0e8; line-height:1.6; }
+  .chat-bubble-ai .md-body { font-size:12px; }
+  .chat-bubble-ai .md-body p { font-size:12px; line-height:1.6; margin-bottom:6px; }
+  .chat-bubble-ai .md-body h1, .chat-bubble-ai .md-body h2, .chat-bubble-ai .md-body h3 { font-size:13px; margin:10px 0 5px; padding-bottom:0; border:none; }
+  .chat-bubble-ai .md-body ul, .chat-bubble-ai .md-body ol { margin:6px 0 8px 20px; }
+  .chat-bubble-ai .md-body li { font-size:12px; line-height:1.6; margin-bottom:3px; }
+  .chat-bubble-ai .md-body hr { margin:12px 0; }
+
   .field-label { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#8899bb; margin-bottom:5px; display:block; }
   .field-input { width:100%; background:rgba(10,22,40,.6); border:1px solid rgba(201,168,76,.2); border-radius:7px; padding:10px 13px; font-size:12px; color:#f5f0e8; font-family:'DM Mono',monospace; transition:border .2s; }
   .field-input:focus { border-color:#c9a84c; }
@@ -47,7 +83,17 @@ const css = `
   .val-bar { background:rgba(155,34,38,.1); border:1px solid rgba(155,34,38,.3); border-radius:8px; padding:14px 16px; margin-bottom:20px; }
   .val-bar-title { font-size:11px; font-weight:500; color:#ff6b6b; margin-bottom:8px; }
   .val-bar-item { font-size:11px; color:#ff6b6b; margin-bottom:3px; }
-  @media print { .no-print { display:none !important; } body { background:white; color:black; } .output-content { color:black; } }
+  @media print {
+    .no-print { display:none !important; }
+    body { background:white; color:black; }
+    .md-body, .md-body p, .md-body li, .md-body td { color:black; }
+    .md-body h1, .md-body h2, .md-body h3, .md-body h4 { color:black; }
+    .md-body strong { color:black; }
+    .md-body th { background:#f0f0f0; color:black; border-color:#ccc; }
+    .md-body td { border-color:#ccc; }
+    .md-body a { color:#0066cc; }
+    .md-body hr { border-top-color:#ccc; }
+  }
 `;
 
 const PERSONAL_FIELDS = [
@@ -506,7 +552,10 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                 </div>
                 <div ref={outputRef} style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 24, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
                   {output
-                    ? <div className="output-content">{output}{generating && <span style={{ color: G }} className="pulse">▌</span>}</div>
+                    ? <div className="md-body">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{output}</ReactMarkdown>
+                        {generating && <span style={{ color: G }} className="pulse">▌</span>}
+                      </div>
                     : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: D, fontSize: 12 }} className="pulse">Generating your package...</div>}
                 </div>
               </div>
@@ -530,7 +579,12 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                     <div style={{ maxHeight: 260, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {messages.slice(2).map((m, i) => (
                         <div key={i} className={m.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}>
-                          {m.content}{m.role === 'assistant' && chatting && i === messages.slice(2).length - 1 && <span style={{ color: G }} className="pulse">▌</span>}
+                          {m.role === 'assistant'
+                            ? <div className="md-body">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+                                {chatting && i === messages.slice(2).length - 1 && <span style={{ color: G }} className="pulse">▌</span>}
+                              </div>
+                            : m.content}
                         </div>
                       ))}
                       <div ref={chatEndRef} />
