@@ -12,41 +12,24 @@ const css = `
   ::-webkit-scrollbar-track { background:#132040; }
   ::-webkit-scrollbar-thumb { background:#c9a84c; border-radius:3px; }
 
-  /* MARKDOWN RENDERING */
-  .md-body { color:#f5f0e8; font-size:13px; line-height:1.75; white-space:normal; }
+  .md-body { color:#f5f0e8; font-size:12px; line-height:1.7; }
   .md-body > *:first-child { margin-top:0; }
-  .md-body h1 { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:#e8c97a; margin:22px 0 12px; padding-bottom:8px; border-bottom:1px solid rgba(201,168,76,.2); letter-spacing:.01em; }
-  .md-body h2 { font-family:'Fraunces',serif; font-size:17px; font-weight:700; color:#c9a84c; margin:22px 0 10px; letter-spacing:.01em; }
-  .md-body h3 { font-family:'Fraunces',serif; font-size:14px; font-weight:600; color:#f5f0e8; margin:16px 0 8px; letter-spacing:.02em; }
-  .md-body h4, .md-body h5, .md-body h6 { font-family:'DM Mono',monospace; font-size:11px; font-weight:500; color:#c9a84c; text-transform:uppercase; letter-spacing:.12em; margin:14px 0 6px; }
-  .md-body p { font-size:13px; line-height:1.75; color:#f5f0e8; margin-bottom:11px; }
+  .md-body h1, .md-body h2, .md-body h3 { font-family:'Fraunces',serif; color:#e8c97a; margin:10px 0 5px; }
+  .md-body h1 { font-size:15px; }
+  .md-body h2 { font-size:14px; }
+  .md-body h3 { font-size:13px; }
+  .md-body p { font-size:12px; margin-bottom:8px; }
   .md-body strong { color:#e8c97a; font-weight:600; }
-  .md-body em { color:#c39bd3; font-style:italic; }
-  .md-body ul, .md-body ol { margin:8px 0 14px 22px; }
-  .md-body li { font-size:13px; line-height:1.75; color:#f5f0e8; margin-bottom:4px; }
-  .md-body li::marker { color:#c9a84c; }
-  .md-body li > p { margin-bottom:4px; }
-  .md-body a { color:#c9a84c; text-decoration:underline; text-decoration-color:rgba(201,168,76,.4); word-break:break-all; }
-  .md-body a:hover { color:#e8c97a; }
-  .md-body hr { border:none; border-top:1px solid rgba(201,168,76,.2); margin:22px 0; }
-  .md-body code { background:rgba(10,22,40,.7); padding:2px 6px; border-radius:4px; font-family:'DM Mono',monospace; font-size:12px; color:#e8c97a; border:1px solid rgba(201,168,76,.15); }
-  .md-body pre { background:rgba(10,22,40,.7); padding:14px 16px; border-radius:8px; border:1px solid rgba(201,168,76,.15); overflow-x:auto; margin:12px 0; }
-  .md-body pre code { background:transparent; border:none; padding:0; font-size:12px; color:#f5f0e8; }
-  .md-body blockquote { border-left:3px solid #c9a84c; padding:8px 16px; margin:12px 0; background:rgba(201,168,76,.06); border-radius:0 6px 6px 0; font-size:12px; color:#8899bb; font-style:italic; }
-  .md-body table { border-collapse:collapse; width:100%; margin:14px 0; font-size:12px; }
-  .md-body th { background:rgba(201,168,76,.1); color:#e8c97a; text-align:left; padding:10px 12px; border:1px solid rgba(201,168,76,.2); font-weight:600; text-transform:uppercase; font-size:10px; letter-spacing:.1em; }
-  .md-body td { padding:9px 12px; border:1px solid rgba(201,168,76,.15); color:#f5f0e8; }
-  .md-body tr:nth-child(even) td { background:rgba(10,22,40,.4); }
-  .md-body img { max-width:100%; border-radius:6px; margin:10px 0; }
+  .md-body ul, .md-body ol { margin:6px 0 10px 20px; }
+  .md-body li { font-size:12px; margin-bottom:3px; }
+  .md-body hr { border:none; border-top:1px solid rgba(201,168,76,.2); margin:12px 0; }
+  .md-body code { background:rgba(10,22,40,.7); padding:2px 6px; border-radius:4px; font-size:11px; color:#e8c97a; }
 
   .chat-bubble-user { background:#1c2f55; border:1px solid rgba(201,168,76,.2); border-radius:10px 10px 2px 10px; padding:12px 16px; font-size:12px; color:#f5f0e8; line-height:1.6; margin-left:40px; white-space:pre-wrap; }
   .chat-bubble-ai { background:#132040; border:1px solid rgba(201,168,76,.1); border-radius:10px 10px 10px 2px; padding:12px 16px; font-size:12px; color:#f5f0e8; line-height:1.6; }
-  .chat-bubble-ai .md-body { font-size:12px; }
-  .chat-bubble-ai .md-body p { font-size:12px; line-height:1.6; margin-bottom:6px; }
-  .chat-bubble-ai .md-body h1, .chat-bubble-ai .md-body h2, .chat-bubble-ai .md-body h3 { font-size:13px; margin:10px 0 5px; padding-bottom:0; border:none; }
-  .chat-bubble-ai .md-body ul, .chat-bubble-ai .md-body ol { margin:6px 0 8px 20px; }
-  .chat-bubble-ai .md-body li { font-size:12px; line-height:1.6; margin-bottom:3px; }
-  .chat-bubble-ai .md-body hr { margin:12px 0; }
+
+  .output-frame { width:100%; height:calc(100vh - 180px); border:1px solid rgba(201,168,76,.15); border-radius:12px; background:#0a1628; }
+  .stream-preview { background:#0a1628; border:1px solid rgba(201,168,76,.15); border-radius:12px; padding:20px; font-family:'DM Mono',monospace; font-size:10px; color:#8899bb; line-height:1.5; max-height:calc(100vh - 200px); overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
 
   .field-label { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:#8899bb; margin-bottom:5px; display:block; }
   .field-input { width:100%; background:rgba(10,22,40,.6); border:1px solid rgba(201,168,76,.2); border-radius:7px; padding:10px 13px; font-size:12px; color:#f5f0e8; font-family:'DM Mono',monospace; transition:border .2s; }
@@ -83,17 +66,7 @@ const css = `
   .val-bar { background:rgba(155,34,38,.1); border:1px solid rgba(155,34,38,.3); border-radius:8px; padding:14px 16px; margin-bottom:20px; }
   .val-bar-title { font-size:11px; font-weight:500; color:#ff6b6b; margin-bottom:8px; }
   .val-bar-item { font-size:11px; color:#ff6b6b; margin-bottom:3px; }
-  @media print {
-    .no-print { display:none !important; }
-    body { background:white; color:black; }
-    .md-body, .md-body p, .md-body li, .md-body td { color:black; }
-    .md-body h1, .md-body h2, .md-body h3, .md-body h4 { color:black; }
-    .md-body strong { color:black; }
-    .md-body th { background:#f0f0f0; color:black; border-color:#ccc; }
-    .md-body td { border-color:#ccc; }
-    .md-body a { color:#0066cc; }
-    .md-body hr { border-top-color:#ccc; }
-  }
+  @media print { .no-print { display:none !important; } }
 `;
 
 const PERSONAL_FIELDS = [
@@ -179,12 +152,12 @@ export default function App() {
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const outputRef = useRef(null);
+  const streamRef = useRef(null);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
-    if (outputRef.current && step === 'output') outputRef.current.scrollTop = outputRef.current.scrollHeight;
-  }, [output]);
+    if (streamRef.current && generating) streamRef.current.scrollTop = streamRef.current.scrollHeight;
+  }, [output, generating]);
 
   useEffect(() => {
     if (chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -213,7 +186,7 @@ export default function App() {
   const buildPrompt = () => {
     const f = form;
     const tierLabel = tier === 'starter' ? 'Starter — Basic Plan' : tier === 'full' ? 'Full Roadmap — Complete Gameplan & Summary for Max Funding' : 'Done With You — Full Roadmap + hands-on support on application day';
-    return `Generate a complete funding package for this client.
+    return `Generate a complete funding package as a self-contained HTML document for this client.
 
 PACKAGE TIER: ${tierLabel}
 
@@ -262,7 +235,9 @@ EXISTING BANKING RELATIONSHIPS: ${banking.length > 0 ? banking.join(', ') : 'Non
 
 NOTES: ${notes||'None'}
 
-${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct any information above.' : 'No PDF attached. Work from the data provided above.'}`;
+${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct any information above.' : 'No PDF attached. Work from the data provided above.'}
+
+Output the complete HTML document now, starting with <!DOCTYPE html> and ending with </html>.`;
   };
 
   const generate = async () => {
@@ -276,18 +251,18 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
     const prompt = buildPrompt();
     const initMsgs = [{ role: 'user', content: prompt }];
     setMessages(initMsgs);
-    const fullText = await streamResponse(initMsgs, true);
+    const fullText = await streamResponse(initMsgs, true, false);
     setGenerating(false);
     if (fullText) await savePackage(fullText);
   };
 
-  const streamResponse = async (msgs, isFirst) => {
+  const streamResponse = async (msgs, isFirst, isFollowUp) => {
     let fullText = '';
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: msgs, pdfBase64: isFirst ? pdfBase64 : undefined }),
+        body: JSON.stringify({ messages: msgs, pdfBase64: isFirst ? pdfBase64 : undefined, isFollowUp }),
       });
       if (!res.ok) throw new Error('Failed');
       const reader = res.body.getReader();
@@ -324,7 +299,7 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
       }
       if (isFirst) setMessages(p => [...p, { role: 'assistant', content: fullText }]);
     } catch (err) {
-      if (isFirst) setOutput('Error: Check your ANTHROPIC_API_KEY in Vercel environment variables, then redeploy.');
+      if (isFirst) setOutput('<html><body style="background:#0a1628;color:#ff6b6b;font-family:monospace;padding:40px">Error: Check your ANTHROPIC_API_KEY in Vercel environment variables, then redeploy.</body></html>');
     }
     return fullText;
   };
@@ -360,12 +335,31 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
     setMessages(updated);
     setChatInput('');
     setChatting(true);
-    await streamResponse(updated, false);
+    await streamResponse(updated, false, true);
     setChatting(false);
   };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(output).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2500); });
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([output], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = (form.clientName || 'client').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    a.download = `${safeName}_funding_package.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleOpenInNewTab = () => {
+    const blob = new Blob([output], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   };
 
   const requestClear = () => { if (output) setShowConfirm(true); else clearAll(); };
@@ -410,9 +404,8 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
       {showConfirm && <ConfirmModal onConfirm={clearAll} onCancel={() => setShowConfirm(false)} />}
 
       <div style={{ minHeight: '100vh', background: N }}>
-        {/* NAV */}
         <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(10,22,40,.97)', borderBottom: '1px solid rgba(201,168,76,.15)', padding: '0 32px' }} className="no-print">
-          <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
+          <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{ width: 28, height: 28, borderRadius: 6, background: `linear-gradient(135deg,${G},${GL})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: N }}>F</div>
               <span style={{ fontFamily: 'serif', fontSize: 16, fontWeight: 600, color: W }}>FundingOS</span>
@@ -422,9 +415,10 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
               {step === 'output' && (
                 <>
                   {saving && <span style={{ fontSize: 10, color: D }} className="pulse">Saving...</span>}
-                  {saved && !saving && <span style={{ fontSize: 10, color: GR }}>✓ Saved to Dashboard</span>}
-                  <button className="btn btn-ghost" onClick={() => window.print()}>Print View</button>
-                  <button className="btn btn-ghost" onClick={handleCopy}>{copied ? '✓ Copied' : 'Copy Package'}</button>
+                  {saved && !saving && <span style={{ fontSize: 10, color: GR }}>✓ Saved</span>}
+                  <button className="btn btn-ghost" onClick={handleOpenInNewTab} disabled={generating}>Open Full Page ↗</button>
+                  <button className="btn btn-ghost" onClick={handleDownload} disabled={generating}>Download HTML</button>
+                  <button className="btn btn-ghost" onClick={handleCopy} disabled={generating}>{copied ? '✓ Copied' : 'Copy HTML'}</button>
                   <button className="btn btn-danger" onClick={requestClear}>← New Client</button>
                 </>
               )}
@@ -433,9 +427,8 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
           </div>
         </nav>
 
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 32px 80px' }}>
+        <div style={{ maxWidth: step === 'output' ? 1400 : 1100, margin: '0 auto', padding: '40px 32px 80px' }}>
 
-          {/* FORM VIEW */}
           {step === 'form' && (
             <>
               <div style={{ marginBottom: 36 }}>
@@ -451,7 +444,6 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                 </div>
               )}
 
-              {/* TIER */}
               <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
                 <div className="section-title"><div className="section-dot" style={{ background: PU }} />Package Tier</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
@@ -469,7 +461,6 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                {/* PERSONAL */}
                 <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 22 }}>
                   <div className="section-title"><div className="section-dot" />Personal Information</div>
                   <p style={{ fontSize: 10, color: D, marginBottom: 14, lineHeight: 1.6 }}>
@@ -479,19 +470,16 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                  {/* BUSINESS */}
                   <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 22 }}>
                     <div className="section-title"><div className="section-dot" style={{ background: GR }} />Business Information</div>
                     {BUSINESS_FIELDS.map(f => renderField(f))}
                   </div>
 
-                  {/* CREDIT */}
                   <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 22 }}>
                     <div className="section-title"><div className="section-dot" style={{ background: OR }} />Credit Profile</div>
                     {CREDIT_FIELDS.map(f => renderField(f))}
                   </div>
 
-                  {/* BANKING */}
                   <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 22 }}>
                     <div className="section-title"><div className="section-dot" style={{ background: PL }} />Existing Banking Relationships</div>
                     <p style={{ fontSize: 10, color: D, marginBottom: 12, lineHeight: 1.6 }}>Check all banks where client has an active checking or savings account.</p>
@@ -505,7 +493,6 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                     </div>
                   </div>
 
-                  {/* PDF */}
                   <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 22 }}>
                     <div className="section-title"><div className="section-dot" style={{ background: GL }} />Credit Report PDF</div>
                     <label style={{ display: 'block', border: '2px dashed rgba(201,168,76,.25)', borderRadius: 9, padding: '20px 16px', textAlign: 'center', cursor: 'pointer' }}>
@@ -517,7 +504,6 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                     </label>
                   </div>
 
-                  {/* NOTES */}
                   <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 22 }}>
                     <div className="section-title"><div className="section-dot" style={{ background: D }} />Notes / Special Circumstances</div>
                     <textarea className="field-input textarea" value={notes} onChange={e => setNotes(e.target.value)} placeholder="Any additional context, edge cases, or special instructions..." style={{ minHeight: 100 }} />
@@ -533,7 +519,6 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
             </>
           )}
 
-          {/* OUTPUT VIEW */}
           {step === 'output' && (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20, alignItems: 'start' }}>
               <div>
@@ -546,37 +531,44 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    {generating && <span style={{ fontSize: 10, color: OR }} className="pulse">● Generating</span>}
+                    {generating && <span style={{ fontSize: 10, color: OR }} className="pulse">● Streaming HTML...</span>}
                     {!generating && output && <span style={{ fontSize: 10, color: GR }}>✓ Complete</span>}
                   </div>
                 </div>
-                <div ref={outputRef} style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, padding: 24, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
-                  {output
-                    ? <div className="md-body">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{output}</ReactMarkdown>
-                        {generating && <span style={{ color: G }} className="pulse">▌</span>}
-                      </div>
-                    : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200, color: D, fontSize: 12 }} className="pulse">Generating your package...</div>}
-                </div>
+
+                {generating && (
+                  <div ref={streamRef} className="stream-preview">
+                    {output || 'Waiting for response...'}
+                    <span style={{ color: G }} className="pulse">▌</span>
+                  </div>
+                )}
+
+                {!generating && output && (
+                  <iframe
+                    className="output-frame"
+                    srcDoc={output}
+                    title="Generated Funding Package"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                )}
               </div>
 
-              {/* CHAT PANEL */}
               <div style={{ position: 'sticky', top: 76 }} className="no-print">
                 <div style={{ fontSize: 10, letterSpacing: '.2em', color: G, textTransform: 'uppercase', marginBottom: 12 }}>Refine with Follow-ups</div>
                 <div style={{ background: M, border: '1px solid rgba(201,168,76,.15)', borderRadius: 12, overflow: 'hidden' }}>
                   <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(201,168,76,.1)' }}>
                     <div style={{ fontSize: 11, color: C, fontWeight: 500, marginBottom: 3 }}>Ask a follow-up</div>
-                    <div style={{ fontSize: 10, color: D, lineHeight: 1.5 }}>Add variables, correct info, or adjust any section.</div>
+                    <div style={{ fontSize: 10, color: D, lineHeight: 1.5 }}>For small edits like rewriting a letter or adjusting one section. For big changes, start a new client.</div>
                   </div>
                   <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(201,168,76,.08)', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {['He has a Chase checking account — adjust strategy', 'She has high DTI from personal loans — adjust', 'Rewrite the Chase intro letter only', 'Add Wells Fargo banking relationship', 'What if Equifax score is actually 750?'].map(ex => (
+                    {['Rewrite the Chase intro letter only', 'Make the Truist form figures match Chase', 'What if Equifax score is actually 750?', 'Add Wells Fargo banking relationship', 'Explain the double down strategy in more detail'].map(ex => (
                       <button key={ex} onClick={() => setChatInput(ex)} style={{ background: 'rgba(201,168,76,.06)', border: '1px solid rgba(201,168,76,.12)', borderRadius: 6, padding: '7px 10px', fontSize: 10, color: D, cursor: 'pointer', textAlign: 'left', fontFamily: 'monospace', transition: 'all .15s' }}>
                         {ex}
                       </button>
                     ))}
                   </div>
                   {messages.length > 2 && (
-                    <div style={{ maxHeight: 260, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ maxHeight: 360, overflowY: 'auto', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                       {messages.slice(2).map((m, i) => (
                         <div key={i} className={m.role === 'user' ? 'chat-bubble-user' : 'chat-bubble-ai'}>
                           {m.role === 'assistant'
@@ -598,8 +590,9 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-                  <button className="btn btn-ghost" onClick={() => window.print()} style={{ width: '100%' }}>🖨 Print View</button>
-                  <button className="btn btn-ghost" onClick={handleCopy} style={{ width: '100%' }}>{copied ? '✓ Copied!' : 'Copy Full Package'}</button>
+                  <button className="btn btn-ghost" onClick={handleOpenInNewTab} disabled={generating} style={{ width: '100%' }}>Open Full Page ↗</button>
+                  <button className="btn btn-ghost" onClick={handleDownload} disabled={generating} style={{ width: '100%' }}>Download HTML</button>
+                  <button className="btn btn-ghost" onClick={handleCopy} disabled={generating} style={{ width: '100%' }}>{copied ? '✓ Copied!' : 'Copy HTML'}</button>
                   <button className="btn btn-danger" onClick={requestClear} style={{ width: '100%' }}>← Start New Client</button>
                 </div>
               </div>
@@ -610,3 +603,4 @@ ${pdfBase64 ? 'A credit report PDF is attached. Use it to supplement or correct 
     </>
   );
 }
+// END OF FILE - DO NOT REMOVE THIS LINE
