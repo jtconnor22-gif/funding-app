@@ -279,7 +279,7 @@ export default async function handler(req, res) {
 
     const stream = await client.messages.stream({
       model: 'claude-sonnet-4-5',
-      max_tokens: 16000,
+      max_tokens: 20000,
       system: systemPrompt,
       messages: apiMessages,
     });
