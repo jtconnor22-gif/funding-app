@@ -106,9 +106,10 @@ export default function Admin() {
     setTimeout(() => setAffMsg(''), 4000);
   };
 
-  const deactivateAffiliate = async (email) => {
-    if (!confirm(`Deactivate ${email}?`)) return;
-    await fetch('/api/credits', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, action:'deactivate'}) });
+  const toggleAffiliate = async (email, action) => {
+    const verb = action === 'deactivate' ? 'Deactivate' : 'Reactivate';
+    if (!confirm(`${verb} ${email}?`)) return;
+    await fetch('/api/credits', { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, action}) });
     fetchAffiliates();
   };
 
@@ -299,7 +300,7 @@ export default function Admin() {
                             <TD>
                               <div style={{ display:'flex', gap:6 }}>
                                 <button className="btn btn-ghost btn-sm" onClick={()=>setAffForm({email:a.email,name:a.name||'',credits:'',notes:a.notes||''})}>Edit</button>
-                                <button className="btn btn-red btn-sm" onClick={()=>deactivateAffiliate(a.email)}>Deactivate</button>
+                                <button className={`btn btn-sm ${a.active!==false ? 'btn-red' : 'btn-ghost'}`} onClick={()=>toggleAffiliate(a.email, a.active!==false ? 'deactivate' : 'activate')}>{a.active!==false ? 'Deactivate' : 'Activate'}</button>
                                 <button className="btn btn-red btn-sm" onClick={()=>deleteAffiliate(a.email)}>Del</button>
                               </div>
                             </TD>
