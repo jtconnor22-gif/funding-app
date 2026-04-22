@@ -383,11 +383,25 @@ export default function Admin() {
                 Banking relationships: {selected.banking.join(', ')}
               </div>
             )}
-            <div style={{ background:'rgba(10,22,40,.6)', borderRadius:10, padding:20, maxHeight:500, overflowY:'auto' }}>
-              <pre style={{ fontSize:12, lineHeight:1.8, color:C, whiteSpace:'pre-wrap', fontFamily:"'DM Mono',monospace" }}>
-                {selected.content||'No content saved.'}
-              </pre>
+            <div style={{ display:'flex', gap:8, marginBottom:12, justifyContent:'flex-end' }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => {
+                const blob = new Blob([selected.content||''], { type:'text/html' });
+                window.open(URL.createObjectURL(blob), '_blank');
+              }}>Open Full Page ↗</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => {
+                const blob = new Blob([selected.content||''], { type:'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `${(selected.clientName||'client').replace(/[^a-z0-9]/gi,'_').toLowerCase()}_package.html`;
+                a.click();
+              }}>Download</button>
             </div>
+            <iframe
+              srcDoc={selected.content||'<p style="color:#fff;padding:20px">No content saved.</p>'}
+              title="Funding Package"
+              sandbox="allow-scripts"
+              style={{ width:'100%', height:600, border:'1px solid rgba(201,168,76,.2)', borderRadius:10, background:'#0a1628' }}
+            />
           </div>
         </div>
       )}
