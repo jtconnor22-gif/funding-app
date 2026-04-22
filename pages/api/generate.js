@@ -57,7 +57,7 @@ Show conservative and optimistic totals WITH double down included.
 6. BANKER FORMS — pre-fill completely using the client's actual data. Never use placeholders if data was provided.
 
 Chase Ink Business Card form:
-Business Revenue, Business Name, Business Address, Business Phone, EIN, Email, NAICS Code, Business Start Date, Contact Name, Personal Phone, Personal Address, Personal Income, SSN, Date of Birth, Credit Limit Requesting ($50,000), Current Bank, Current Revolving Balances, What does the business do, Number of Employees, Correspondence Address
+Business Revenue, Business Name, Business Address, Business Phone, EIN, Email, NAICS Code, Business Start Date, Contact Name, Personal Phone, Personal Address, Personal Income, SSN, Date of Birth, Credit Limit Requesting, Current Bank, Current Revolving Balances, What does the business do, Number of Employees, Correspondence Address
 
 Truist Business Card form:
 Contact Name, Personal Phone, Personal Address, Personal Income, SSN, Date of Birth, Business Name, Business Address, Business Phone, EIN, Email, Business Start Date, Business Revenue, NAICS Code, What does the business do, Number of Employees
@@ -77,38 +77,28 @@ Recon numbers:
 - BofA: 1-888-500-6270
 
 9. COMMISSION TRACKING SUMMARY & AFFILIATE LINKS
-For each card recommended, include the correct affiliate link from the list below. These links must be included verbatim in every package — do not modify or shorten them.
+For each card recommended, include the correct affiliate link from the list below. These links must be included verbatim in every package.
 
-AFFILIATE LINKS (use these exact URLs):
-
-BUSINESS CARDS:
-- Nav.com (all business products, general business credit): https://www.nav.com/a/affiliates/jc/
-- Chase Ink Business Cards (ANY Chase Ink product): https://www.cardratings.com/bestcards/featured-credit-cards?src=692459&trn_id=ZIN100&shnq=340040,4048280,4048113,5048298,3006145,3006145
-- All other Business Credit Cards (Amex, BofA, Wells Fargo, US Bank, Citi, Capital One): https://www.cardratings.com/bestcards/business-credit-cards.php?&CCID=20370517204620122&QTR=ZZf201609281603350Za20370517Zg255Zw0Zm0Zc204620122Zs7273ZZ&CLK=146260422044850548&src=696533&&exp=y
-
-PERSONAL CARDS (0% APR):
-- Personal 0% APR Cards: https://www.cardratings.com/bestcards/0-apr-credit-cards.php?&CCID=20370515204620121&QTR=ZZf201609281602350Za20370515Zg255Zw0Zm0Zc204620121Zs7273ZZ&CLK=133260422044914219&src=696533&&exp=y
-- Personal Balance Transfer Cards: https://www.cardratings.com/bestcards/balance-transfer-credit-cards.php?&CCID=20405848204620114&QTR=ZZf201609281520350Za20405848Zg255Zw0Zm0Zc204620114Zs7273ZZ&CLK=156260422044941249&src=696533&&exp=y
+AFFILIATE LINKS:
+- Nav.com: https://www.nav.com/a/affiliates/jc/
+- Chase Ink Business Cards: https://www.cardratings.com/bestcards/featured-credit-cards?src=692459&trn_id=ZIN100
+- Other Business Credit Cards: https://www.cardratings.com/bestcards/business-credit-cards.php?src=696533
+- Personal 0% APR Cards: https://www.cardratings.com/bestcards/0-apr-credit-cards.php?src=696533
+- Personal Balance Transfer Cards: https://www.cardratings.com/bestcards/balance-transfer-credit-cards.php?src=696533
 
 LINK ASSIGNMENT RULES:
-- Chase Ink Business Unlimited → use Chase Ink link
-- Chase Ink Business Cash (Double Down) → use Chase Ink link
-- Amex Blue Business Cash → use Business Credit Cards link
-- Amex Blue Business Plus → use Business Credit Cards link
-- Wells Fargo Business Platinum → use Business Credit Cards link
-- BofA Business Advantage → use Business Credit Cards link
-- US Bank Business Triple Cash → use Business Credit Cards link
-- Any personal 0% card → use Personal 0% APR link
-- Any balance transfer card → use Balance Transfer link
-- Nav.com → use for credit monitoring, business credit building recommendations
+- Any Chase Ink product uses the Chase Ink link
+- Amex, BofA, Wells Fargo, US Bank, Citi, Capital One use the Business Credit Cards link
+- Any personal 0% card uses the Personal 0% APR link
+- Any balance transfer card uses the Balance Transfer link
 
 In the Commission Tracking section, format each card like this:
-Card Name | Apply Link: [full URL] | Estimated Range: $X–$Y | Affiliate Commission: estimated $X | Consulting Fee (10%): $X if approved
+Card Name | Apply Link: [full URL] | Estimated Range: amount | Affiliate Commission: estimated amount | Consulting Fee (10%): amount if approved
 
 RULES YOU ALWAYS FOLLOW:
 - Business credit cards use personal score as guarantor — personal DTI does not disqualify for card approvals
 - Never recommend a third Capital One card if client already has two Capital One accounts
-- Always note that revolving balances should be paid to $0 before application day
+- Always note that revolving balances should be paid to zero before application day
 - Business under 1 year — never use actual revenue, always use projected
 - Single bureau report — flag before applying to any lender pulling the unconfirmed bureau
 - Recon must be called same day for any pending decision — never wait overnight
@@ -123,7 +113,9 @@ Begin every package with this exact disclaimer on its own line before any other 
 Then continue with clear section headers. Flag any missing information that would block applications at the top. Be specific — use the client's actual numbers, names, addresses throughout. Never use placeholders if the data was provided. After the full package, end with a SHORT SUMMARY of the top 3 action items to complete before application day.`;
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
     const { messages, pdfBase64 } = req.body;
@@ -143,15 +135,7 @@ export default async function handler(req, res) {
     });
     const todayISO = today.toISOString().split('T')[0];
 
-    const DATE_CONTEXT = `
-
-CURRENT DATE CONTEXT:
-Today's actual date is ${todayFormatted} (${todayISO}).
-Use this as the ONLY reference point for evaluating whether any date the client provided is in the past, present, or future.
-A date is "in the future" ONLY if it falls AFTER ${todayISO}.
-A date is "in the past" if it falls BEFORE ${todayISO}.
-Do not rely on your training data knowledge cutoff to determine what "today" is — use the date stated above.
-When calculating business age, account age, or inquiry age, always measure from ${todayISO} backward.`;
+    const DATE_CONTEXT = '\n\nCURRENT DATE CONTEXT:\nToday is ' + todayFormatted + ' (' + todayISO + ').\nA date is "in the future" ONLY if it is AFTER ' + todayISO + '.\nA date is "in the past" if it is BEFORE ' + todayISO + '.\nDo not use your training data cutoff to determine what today is. Use the date above as the single source of truth for evaluating all dates.';
 
     const systemWithDate = SYSTEM_PROMPT + DATE_CONTEXT;
 
@@ -189,7 +173,7 @@ When calculating business age, account age, or inquiry age, always measure from 
 
     for await (const chunk of stream) {
       if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
-        res.write(`data: ${JSON.stringify({ text: chunk.delta.text })}\n\n`);
+        res.write('data: ' + JSON.stringify({ text: chunk.delta.text }) + '\n\n');
       }
     }
 
@@ -200,8 +184,9 @@ When calculating business age, account age, or inquiry age, always measure from 
     if (!res.headersSent) {
       res.status(500).json({ error: err.message });
     } else {
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.write('data: ' + JSON.stringify({ error: err.message }) + '\n\n');
       res.end();
     }
   }
 }
+// END OF FILE - DO NOT REMOVE THIS LINE
