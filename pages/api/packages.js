@@ -1,21 +1,15 @@
 import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
-
   // GET — fetch all packages
   if (req.method === 'GET') {
     try {
-      const existingIndex = await kv.get('package:index');
-      const index = existingIndex ? JSON.parse(existingIndex) : [];
-
+      const index = (await kv.get('package:index')) || [];
       if (index.length === 0) return res.status(200).json({ packages: [] });
-
       const packages = await Promise.all(
         index.map(async (id) => {
-          const raw = await kv.get(`package:${id}`);
-          if (!raw) return null;
-          const pkg = JSON.parse(raw);
-          // Return metadata only — not full content — for table view performance
+          const pkg = await kv.get(`package:${id}`);
+          if (!pkg) return null;
           return {
             id: pkg.id,
             clientName: pkg.clientName,
@@ -28,11 +22,10 @@ export default async function handler(req, res) {
             banking: pkg.banking,
             status: pkg.status,
             createdAt: pkg.createdAt,
-            content: pkg.content, // include for modal view
+            content: pkg.content,
           };
         })
       );
-
       return res.status(200).json({ packages: packages.filter(Boolean) });
     } catch (err) {
       console.error('Get packages error:', err);
@@ -45,14 +38,10 @@ export default async function handler(req, res) {
     try {
       const { id, status } = req.body;
       if (!id || !status) return res.status(400).json({ error: 'id and status required' });
-
-      const raw = await kv.get(`package:${id}`);
-      if (!raw) return res.status(404).json({ error: 'Package not found' });
-
-      const pkg = JSON.parse(raw);
+      const pkg = await kv.get(`package:${id}`);
+      if (!pkg) return res.status(404).json({ error: 'Package not found' });
       pkg.status = status;
-      await kv.set(`package:${id}`, JSON.stringify(pkg));
-
+      await kv.set(`package:${id}`, pkg);
       return res.status(200).json({ success: true });
     } catch (err) {
       console.error('Update status error:', err);
@@ -65,14 +54,10 @@ export default async function handler(req, res) {
     try {
       const { id } = req.body;
       if (!id) return res.status(400).json({ error: 'id required' });
-
       await kv.del(`package:${id}`);
-
-      const existingIndex = await kv.get('package:index');
-      const index = existingIndex ? JSON.parse(existingIndex) : [];
+      const index = (await kv.get('package:index')) || [];
       const updated = index.filter(i => i !== id);
-      await kv.set('package:index', JSON.stringify(updated));
-
+      await kv.set('package:index', updated);
       return res.status(200).json({ success: true });
     } catch (err) {
       console.error('Delete package error:', err);
