@@ -420,7 +420,7 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
   const savePackage = async (content) => {
     setSaving(true);
     try {
-      await fetch('/api/save-package', {
+      await fetch('/api/save_package', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
