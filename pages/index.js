@@ -714,3 +714,26 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
   );
 }
 // END OF FILE - DO NOT REMOVE THIS LINE
+import crypto from 'crypto';
+import { kv as __kv } from '@vercel/kv';
+
+export async function getServerSideProps(ctx) {
+  const cookies = ctx.req.headers.cookie || '';
+  const match = cookies.match(/affiliate_auth=([^;]+)/);
+  const cookie = match ? decodeURIComponent(match[1]) : null;
+  if (!cookie) return { redirect: { destination: '/login', permanent: false } };
+  try {
+    const decoded = Buffer.from(cookie, 'base64').toString();
+    const [email, hash] = decoded.split(':');
+    if (!email || !hash) return { redirect: { destination: '/login', permanent: false } };
+    const affiliate = await __kv.get(`affiliate:${email}`);
+    if (!affiliate || !affiliate.active || !affiliate.accessCode) {
+      return { redirect: { destination: '/login', permanent: false } };
+    }
+    const expected = crypto.createHash('sha256').update(affiliate.accessCode + 'fundingos_affiliate_salt').digest('hex');
+    if (hash !== expected) return { redirect: { destination: '/login', permanent: false } };
+    return { props: {} };
+  } catch (err) {
+    return { redirect: { destination: '/login', permanent: false } };
+  }
+}
