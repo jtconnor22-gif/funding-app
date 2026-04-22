@@ -72,7 +72,7 @@ Write a word-for-word recon script personalized to this specific client's strong
 
 Recon numbers:
 - Chase: 1-800-453-9719
-- Amex: 1-800-567-1083  
+- Amex: 1-800-567-1083
 - Wells Fargo: 1-800-642-4720
 - BofA: 1-888-500-6270
 
@@ -134,7 +134,6 @@ export default async function handler(req, res) {
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    // Inject today's real date into the system prompt so Claude doesn't mistakenly flag valid past dates as "future"
     const today = new Date();
     const todayFormatted = today.toLocaleDateString('en-US', {
       weekday: 'long',
@@ -156,7 +155,6 @@ When calculating business age, account age, or inquiry age, always measure from 
 
     const systemWithDate = SYSTEM_PROMPT + DATE_CONTEXT;
 
-    // Build messages — attach PDF to first user message only
     const apiMessages = messages.map((m, i) => {
       if (i === 0 && pdfBase64) {
         return {
@@ -200,4 +198,10 @@ When calculating business age, account age, or inquiry age, always measure from 
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
-      res.status(500).json({ error: err.messag
+      res.status(500).json({ error: err.message });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    }
+  }
+}
