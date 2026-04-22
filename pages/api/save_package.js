@@ -31,13 +31,12 @@ export default async function handler(req, res) {
     };
 
     // Save the full package
-    await kv.set(`package:${id}`, JSON.stringify(pkg));
+    await kv.set(`package:${id}`, pkg);
 
     // Add ID to the master index list
-    const existingIndex = await kv.get('package:index');
-    const index = existingIndex ? JSON.parse(existingIndex) : [];
+    const index = (await kv.get('package:index')) || [];
     index.unshift(id); // newest first
-    await kv.set('package:index', JSON.stringify(index));
+    await kv.set('package:index', index);
 
     return res.status(200).json({ success: true, id });
   } catch (err) {
