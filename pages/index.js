@@ -30,6 +30,32 @@ const css = `
 
   .output-frame { width:100%; height:calc(100vh - 180px); border:1px solid rgba(201,168,76,.15); border-radius:12px; background:#0a1628; }
   .stream-preview { background:#0a1628; border:1px solid rgba(201,168,76,.15); border-radius:12px; padding:20px; font-family:'DM Mono',monospace; font-size:10px; color:#8899bb; line-height:1.5; max-height:calc(100vh - 200px); overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+  .loading-card { background:linear-gradient(135deg,#132040 0%,#0a1628 100%); border:1px solid rgba(201,168,76,.2); border-radius:16px; padding:48px 40px; min-height:calc(100vh - 200px); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; position:relative; overflow:hidden; }
+  .loading-card::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:2px; background:linear-gradient(90deg,transparent,#c9a84c,transparent); animation:shimmer 2.5s infinite; }
+  @keyframes shimmer { 0%{left:-100%}100%{left:100%} }
+  .loading-icon { width:64px; height:64px; border-radius:50%; background:radial-gradient(circle,rgba(201,168,76,.2) 0%,transparent 70%); display:flex; align-items:center; justify-content:center; margin-bottom:24px; position:relative; }
+  .loading-icon::before { content:''; position:absolute; inset:0; border-radius:50%; border:2px solid transparent; border-top-color:#c9a84c; border-right-color:#c9a84c; animation:spin 1.5s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-icon-inner { width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#c9a84c,#e8c97a); display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:900; font-size:16px; color:#0a1628; }
+  .loading-title { font-family:'Fraunces',serif; font-size:26px; font-weight:700; color:#f5f0e8; margin-bottom:10px; letter-spacing:.01em; }
+  .loading-subtitle { font-size:12px; color:#8899bb; letter-spacing:.08em; margin-bottom:36px; max-width:440px; line-height:1.7; }
+  .loading-stages { display:flex; flex-direction:column; gap:8px; width:100%; max-width:420px; margin-bottom:28px; }
+  .stage { display:flex; align-items:center; gap:12px; padding:12px 16px; background:rgba(255,255,255,.02); border:1px solid rgba(201,168,76,.08); border-radius:8px; transition:all .3s; }
+  .stage.active { background:rgba(201,168,76,.08); border-color:rgba(201,168,76,.3); }
+  .stage.done { background:rgba(45,106,79,.08); border-color:rgba(82,183,136,.2); }
+  .stage-dot { width:10px; height:10px; border-radius:50%; background:rgba(136,153,187,.3); flex-shrink:0; transition:all .3s; }
+  .stage.active .stage-dot { background:#c9a84c; box-shadow:0 0 10px rgba(201,168,76,.5); animation:pulse-dot 1.2s infinite; }
+  .stage.done .stage-dot { background:#52b788; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.15)} }
+  .stage-label { font-size:11px; color:#8899bb; letter-spacing:.05em; text-align:left; flex:1; }
+  .stage.active .stage-label { color:#e8c97a; font-weight:500; }
+  .stage.done .stage-label { color:#52b788; }
+  .stage-check { font-size:12px; color:#52b788; opacity:0; transition:opacity .3s; }
+  .stage.done .stage-check { opacity:1; }
+  .loading-meta { display:flex; gap:24px; font-size:10px; color:#8899bb; letter-spacing:.1em; text-transform:uppercase; }
+  .loading-meta-value { color:#c9a84c; font-family:'Fraunces',serif; font-size:16px; margin-left:6px; font-weight:600; }
+  .debug-toggle { position:absolute; bottom:16px; right:20px; font-size:9px; color:rgba(136,153,187,.5); background:transparent; border:none; cursor:pointer; letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:4px; transition:color .2s; }
+  .debug-toggle:hover { color:#c9a84c; }
 
   .loading-card { background:linear-gradient(135deg,#132040 0%,#0a1628 100%); border:1px solid rgba(201,168,76,.2); border-radius:16px; padding:48px 40px; min-height:calc(100vh - 200px); display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; position:relative; overflow:hidden; }
   .loading-card::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:2px; background:linear-gradient(90deg,transparent,#c9a84c,transparent); animation:shimmer 2.5s infinite; }
@@ -164,6 +190,74 @@ function LoadingCard({ output, streamRef }) {
   });
 
   // If stream barely started, mark the first stage active so user sees something happening
+  if (charCount > 100 && !stageStatus.includes('active') && !stageStatus.includes('done')) {
+    stageStatus[0] = 'active';
+  }
+
+  const formattedCount = charCount.toLocaleString();
+
+  if (showRaw) {
+    return (
+      <div style={{ position: 'relative' }}>
+        <div ref={streamRef} className="stream-preview">
+          {output || 'Waiting for response...'}
+          <span style={{ color: '#c9a84c' }} className="pulse">▌</span>
+        </div>
+        <button className="debug-toggle" onClick={() => setShowRaw(false)} style={{ position: 'absolute', top: 16, right: 20 }}>
+          ← Hide Raw View
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="loading-card">
+      <div className="loading-icon">
+        <div className="loading-icon-inner">F</div>
+      </div>
+      <div className="loading-title">Building your funding package</div>
+      <div className="loading-subtitle">
+        Claude is analyzing the credit profile and generating a complete, custom SOP with banker forms, intro letters, and application schedule. Typically takes 30–60 seconds.
+      </div>
+      <div className="loading-stages">
+        {stages.map((s, i) => (
+          <div key={i} className={`stage ${stageStatus[i]}`}>
+            <div className="stage-dot" />
+            <div className="stage-label">{s.label}</div>
+            <div className="stage-check">✓</div>
+          </div>
+        ))}
+      </div>
+      <div className="loading-meta">
+        <div>Streaming<span className="loading-meta-value">{formattedCount}</span> chars</div>
+      </div>
+      <button className="debug-toggle" onClick={() => setShowRaw(true)}>
+        Show Raw HTML
+      </button>
+    </div>
+  );
+}
+function LoadingCard({ output, streamRef }) {
+  const [showRaw, setShowRaw] = useState(false);
+  const charCount = output.length;
+
+  const stages = [
+    { label: 'Analyzing credit profile', markers: ['score-card', 'Key Credit Metrics', 'Credit Score'] },
+    { label: 'Flagging risks & red flags', markers: ['Red Flags', 'red-card', 'CRITICAL', 'HARD STOP'] },
+    { label: 'Building application schedule', markers: ['SCHEDULE', 'time-block', '9:00 AM', 'Schedule'] },
+    { label: 'Pre-filling banker forms', markers: ['BANKER FORMS', 'Chase Ink', 'Truist Business'] },
+    { label: 'Drafting intro letters', markers: ['INTRODUCTIONS', 'letter-bank', 'Dear '] },
+    { label: 'Finalizing tracker & affiliate links', markers: ['TRACKER', 'tracker', 'Commission'] },
+  ];
+
+  const stageStatus = stages.map((s, i) => {
+    const hasAny = s.markers.some(m => output.includes(m));
+    const nextHasAny = i < stages.length - 1 && stages[i + 1].markers.some(m => output.includes(m));
+    if (nextHasAny) return 'done';
+    if (hasAny) return 'active';
+    return 'pending';
+  });
+
   if (charCount > 100 && !stageStatus.includes('active') && !stageStatus.includes('done')) {
     stageStatus[0] = 'active';
   }
@@ -435,6 +529,16 @@ Output the complete HTML document now, starting with <!DOCTYPE html> and ending 
     setChatting(false);
   };
 const cleanHTML = (raw) => {
+    if (!raw) return '';
+    let cleaned = raw.trim();
+    cleaned = cleaned.replace(/^```html\s*/i, '');
+    cleaned = cleaned.replace(/^```\s*/i, '');
+    cleaned = cleaned.replace(/\s*```\s*$/, '');
+    const docStart = cleaned.indexOf('<!DOCTYPE');
+    if (docStart > 0) cleaned = cleaned.slice(docStart);
+    return cleaned;
+  };
+  const cleanHTML = (raw) => {
     if (!raw) return '';
     let cleaned = raw.trim();
     cleaned = cleaned.replace(/^```html\s*/i, '');
