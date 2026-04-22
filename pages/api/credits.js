@@ -1,3 +1,4 @@
+import { kv } from '@vercel/kv';
 import crypto from 'crypto';
 
 function isAdmin(req) {
@@ -8,130 +9,101 @@ function isAdmin(req) {
   const expected = crypto.createHash('sha256').update(secret + 'fundingos_salt').digest('hex');
   return token === expected;
 }
-import { kv } from '@vercel/kv';
 
-// GET /api/credits?email=natasha@example.com — check credits
-// POST /api/credits — add or set credits for an affiliate
-// PATCH /api/credits — deduct one credit when package is generated
-// GET /api/credits?all=true — get all affiliates (admin view)
+function generateAccessCode(name) {
+  const prefix = (name || 'user').split(/\s+/)[0].toLowerCase().replace(/[^a-z]/g, '').slice(0, 12) || 'user';
+  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const bytes = crypto.randomBytes(8);
+  let s1 = '', s2 = '';
+  for (let i = 0; i < 4; i++) {
+    s1 += chars[bytes[i] % chars.length];
+    s2 += chars[bytes[i + 4] % chars.length];
+  }
+  return `${prefix}-${s1}-${s2}`;
+}
 
 export default async function handler(req, res) {
-if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
+  if (!isAdmin(req)) return res.status(401).json({ error: 'Unauthorized' });
 
-  // GET — check credits for a user OR get all affiliates
+  // GET — list all affiliates
   if (req.method === 'GET') {
     try {
-      const { email, all } = req.query;
-
-      if (all === 'true') {
-        // Return all affiliates
-        const raw = await kv.get('affiliates:index');
-        const emails = raw ? JSON.parse(raw) : [];
-        const affiliates = await Promise.all(
-          emails.map(async (e) => {
-            const data = await kv.get(`affiliate:${e}`);
-            return data ? JSON.parse(data) : null;
-          })
-        );
-        return res.status(200).json({ affiliates: affiliates.filter(Boolean) });
-      }
-
-      if (!email) return res.status(400).json({ error: 'email required' });
-
-      const raw = await kv.get(`affiliate:${email}`);
-      if (!raw) return res.status(200).json({ found: false, credits: 0 });
-
-      const affiliate = JSON.parse(raw);
-      return res.status(200).json({ found: true, ...affiliate });
+      const index = (await kv.get('affiliate:index')) || [];
+      const affiliates = await Promise.all(index.map(email => kv.get(`affiliate:${email}`)));
+      return res.status(200).json({ affiliates: affiliates.filter(Boolean) });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
   }
 
-  // POST — create or update affiliate with credits
+  // POST — add or update affiliate (adds credits to existing balance)
   if (req.method === 'POST') {
     try {
       const { email, name, credits, notes } = req.body;
-      if (!email || credits === undefined) return res.status(400).json({ error: 'email and credits required' });
+      if (!email || !credits) return res.status(400).json({ error: 'Email and credits required' });
+      const creditsNum = parseInt(credits, 10);
+      if (isNaN(creditsNum) || creditsNum < 1) return res.status(400).json({ error: 'Invalid credits value' });
 
       const existing = await kv.get(`affiliate:${email}`);
-      const prev = existing ? JSON.parse(existing) : {};
-
-      const affiliate = {
-        email: email.toLowerCase().trim(),
-        name: name || prev.name || email,
-        credits: parseInt(credits),
-        totalUsed: prev.totalUsed || 0,
-        totalAdded: (prev.totalAdded || 0) + parseInt(credits),
-        notes: notes || prev.notes || '',
-        createdAt: prev.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      const updated = existing ? {
+        ...existing,
+        name: name || existing.name,
+        credits: (existing.credits || 0) + creditsNum,
+        notes: notes || existing.notes,
         active: true,
+      } : {
+        email,
+        name: name || '',
+        credits: creditsNum,
+        totalUsed: 0,
+        notes: notes || '',
+        active: true,
+        accessCode: generateAccessCode(name),
+        createdAt: new Date().toISOString(),
       };
 
-      await kv.set(`affiliate:${email.toLowerCase().trim()}`, JSON.stringify(affiliate));
-
-      // Add to index if new
-      const indexRaw = await kv.get('affiliates:index');
-      const index = indexRaw ? JSON.parse(indexRaw) : [];
-      if (!index.includes(email.toLowerCase().trim())) {
-        index.push(email.toLowerCase().trim());
-        await kv.set('affiliates:index', JSON.stringify(index));
+      await kv.set(`affiliate:${email}`, updated);
+      if (!existing) {
+        const index = (await kv.get('affiliate:index')) || [];
+        if (!index.includes(email)) {
+          index.push(email);
+          await kv.set('affiliate:index', index);
+        }
       }
+      return res.status(200).json({ success: true, affiliate: updated });
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
 
+  // PATCH — deactivate / reactivate / regenerate code
+  if (req.method === 'PATCH') {
+    try {
+      const { email, action } = req.body;
+      if (!email || !action) return res.status(400).json({ error: 'Email and action required' });
+      const affiliate = await kv.get(`affiliate:${email}`);
+      if (!affiliate) return res.status(404).json({ error: 'Affiliate not found' });
+
+      if (action === 'deactivate') affiliate.active = false;
+      else if (action === 'activate') affiliate.active = true;
+      else if (action === 'regenerate_code') affiliate.accessCode = generateAccessCode(affiliate.name);
+      else return res.status(400).json({ error: 'Unknown action' });
+
+      await kv.set(`affiliate:${email}`, affiliate);
       return res.status(200).json({ success: true, affiliate });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
   }
 
-  // PATCH — deduct one credit (called when package is generated)
-  if (req.method === 'PATCH') {
-    try {
-      const { email, action } = req.body;
-      if (!email) return res.status(400).json({ error: 'email required' });
-
-      const raw = await kv.get(`affiliate:${email.toLowerCase().trim()}`);
-      if (!raw) return res.status(404).json({ error: 'Affiliate not found' });
-
-      const affiliate = JSON.parse(raw);
-
-      if (action === 'deduct') {
-        if (affiliate.credits <= 0) {
-          return res.status(403).json({ error: 'No credits remaining', credits: 0 });
-        }
-        affiliate.credits -= 1;
-        affiliate.totalUsed = (affiliate.totalUsed || 0) + 1;
-        affiliate.updatedAt = new Date().toISOString();
-        await kv.set(`affiliate:${email.toLowerCase().trim()}`, JSON.stringify(affiliate));
-        return res.status(200).json({ success: true, creditsRemaining: affiliate.credits });
-      }
-
-      if (action === 'deactivate') {
-        affiliate.active = false;
-        affiliate.updatedAt = new Date().toISOString();
-        await kv.set(`affiliate:${email.toLowerCase().trim()}`, JSON.stringify(affiliate));
-        return res.status(200).json({ success: true });
-      }
-
-      return res.status(400).json({ error: 'Invalid action' });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
-
-  // DELETE — remove affiliate
+  // DELETE — remove affiliate entirely
   if (req.method === 'DELETE') {
     try {
       const { email } = req.body;
-      if (!email) return res.status(400).json({ error: 'email required' });
-
-      await kv.del(`affiliate:${email.toLowerCase().trim()}`);
-
-      const indexRaw = await kv.get('affiliates:index');
-      const index = indexRaw ? JSON.parse(indexRaw) : [];
-      await kv.set('affiliates:index', JSON.stringify(index.filter(e => e !== email.toLowerCase().trim())));
-
+      if (!email) return res.status(400).json({ error: 'Email required' });
+      await kv.del(`affiliate:${email}`);
+      const index = (await kv.get('affiliate:index')) || [];
+      await kv.set('affiliate:index', index.filter(e => e !== email));
       return res.status(200).json({ success: true });
     } catch (err) {
       return res.status(500).json({ error: err.message });
