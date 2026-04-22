@@ -287,6 +287,12 @@ export default function App() {
     cleaned = cleaned.replace(/\s*```\s*$/, '');
     const docStart = cleaned.indexOf('<!DOCTYPE');
     if (docStart > 0) cleaned = cleaned.slice(docStart);
+    const navScript = '<script>(function(){function activate(idx){var secs=document.querySelectorAll(".section");var btns=document.querySelectorAll(".nav-btn");secs.forEach(function(s,i){s.classList.toggle("active",i===idx)});btns.forEach(function(b,i){b.classList.toggle("active",i===idx)});window.scrollTo({top:0,behavior:"smooth"})}window.show=function(idx,btn){activate(idx)};function wire(){document.querySelectorAll(".nav-btn").forEach(function(b,i){b.addEventListener("click",function(){activate(i)})})}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",wire)}else{wire()}})();</script>';
+    if (/<\/body>/i.test(cleaned)) {
+      cleaned = cleaned.replace(/<\/body>/i, navScript + '</body>');
+    } else {
+      cleaned = cleaned + navScript;
+    }
     return cleaned;
   };
 
